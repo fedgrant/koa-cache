@@ -1,0 +1,17 @@
+{
+  "name": "koa-cache",
+  "version": "0.1.0",
+  "description": "Cache requests to redis",
+  "main": "src/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Mikhail Fedorenko",
+  "license": "MIT",
+  "dependencies": {
+    "redis": "^2.8.0"
+  },
+  "devDependencies": {
+    "koa": "^2.5.0"
+  }
+}
