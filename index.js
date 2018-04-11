@@ -21,7 +21,7 @@ module.exports = function Cache(config, httpHeaders) {
 
   for (let i = 0; i < configKeys.length; i++) {
     if (possibleRedisConfigOptions.indexOf(configKeys[i]) < 0) {
-      return new Error('Property ' + configKeys[i] + ' not valid Redis configuration property. See https://github.com/NodeRedis/node_redis#rediscreateclient for possible configuration properties');
+      throw new Error('Property "' + configKeys[i] + '" not valid Redis configuration property. See https://github.com/NodeRedis/node_redis#rediscreateclient for possible configuration properties');
     }
   }
 
@@ -68,7 +68,7 @@ module.exports = function Cache(config, httpHeaders) {
         let returned = await setAsync(url + '|' + headerString, body);
         ctx.redisCache = returned === 'OK' ? 'CREATED' : 'FAILED';
       } else {
-        ctx.redisCache = 'OK';
+        ctx.redisCache = 'FETECHED';
         ctx.body = handlePossibleJson(value, true, ctx);
       }
 
