@@ -11,7 +11,7 @@ describe('Testing Caching Middleware', function() {
       let httpHeaders = [];
 
       assert.throws(() => {
-        return cache(httpHeaders, store);
+        return Cache(httpHeaders, store);
       }, /^Error: store is missing a "get" property$/);
     });
 
@@ -22,7 +22,7 @@ describe('Testing Caching Middleware', function() {
       let httpHeaders = [];
 
       assert.throws(() => {
-        return cache(httpHeaders, store);
+        return Cache(httpHeaders, store);
       }, /^Error: \"get\" property on store is not a function$/);
     });
 
@@ -33,7 +33,7 @@ describe('Testing Caching Middleware', function() {
       let httpHeaders = [];
 
       assert.throws(() => {
-        return cache(httpHeaders, store);
+        return Cache(httpHeaders, store);
       }, /^Error: store missing "set" property$/);
     });
 
@@ -45,7 +45,7 @@ describe('Testing Caching Middleware', function() {
       let httpHeaders = [];
       
       assert.throws(() => {
-        return cache(httpHeaders, store);
+        return Cache(httpHeaders, store);
       }, /^Error: \"set\" property on store is not a function$/);
     });
   });
@@ -77,7 +77,7 @@ describe('Testing Caching Middleware', function() {
       assert.equal(undefined, ctx.fromCache);
     });
 
-    it('Cache retrieves value from store', async function() {
+    it('Cache retrieves non json value from store', async function() {
       let ctx = {
         url: '/',
         method: 'GET',
@@ -99,6 +99,30 @@ describe('Testing Caching Middleware', function() {
       await cache(ctx, async () => {})
       assert.equal('FETECHED', ctx.fromCache);
       assert.equal('test', ctx.body);
+    });
+
+    it('Cache retrieves json value from store', async function() {
+      let ctx = {
+        url: '/',
+        method: 'GET',
+        is: function(...args) {
+          for (var i in args) {
+            if (ctx.contentType === args[i]) {
+              return true;
+            }
+          }
+          return false;
+        },
+        contentType: 'value'
+      };
+
+      let store = new Store();
+      store.set('/|', {test: 'test'});
+
+      var cache = new Cache([], store);    
+      await cache(ctx, async () => {})
+      assert.equal('FETECHED', ctx.fromCache);
+      assert.deepEqual({test:'test'}, ctx.body);
     });
 
   });
