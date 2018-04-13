@@ -64,21 +64,10 @@ describe('Testing Caching Middleware', function() {
   };
 
   describe('Cache properly stores and retrives values', function() {
-  
-    it('Cache ignores non GET request ', async function() {
-      let ctx = {
-        url: '/',
-        method: 'POST'
-      }
+    let ctx;
 
-      var cache = new Cache([], new Store())
-
-      await cache(ctx, async () => {});
-      assert.equal(undefined, ctx.fromCache);
-    });
-
-    it('Cache retrieves non json value from store', async function() {
-      let ctx = {
+    beforeEach(function() {
+      ctx = {
         url: '/',
         method: 'GET',
         is: function(...args) {
@@ -91,7 +80,19 @@ describe('Testing Caching Middleware', function() {
         },
         contentType: 'value'
       };
+    })
 
+    it('Cache ignores non GET request ', async function() {
+      ctx = {
+        url: '/',
+        method: 'POST'
+      }
+      var cache = new Cache([], new Store())
+      await cache(ctx, async () => {});
+      assert.equal(undefined, ctx.fromCache);
+    });
+
+    it('Cache retrieves non json value from store', async function() {
       let store = new Store();
       store.set('/|', 'test');
 
@@ -102,20 +103,6 @@ describe('Testing Caching Middleware', function() {
     });
 
     it('Cache retrieves json value from store', async function() {
-      let ctx = {
-        url: '/',
-        method: 'GET',
-        is: function(...args) {
-          for (var i in args) {
-            if (ctx.contentType === args[i]) {
-              return true;
-            }
-          }
-          return false;
-        },
-        contentType: 'value'
-      };
-
       let store = new Store();
       store.set('/|', {test: 'test'});
 
@@ -124,6 +111,12 @@ describe('Testing Caching Middleware', function() {
       assert.equal('FETECHED', ctx.fromCache);
       assert.deepEqual({test:'test'}, ctx.body);
     });
+
+    // it('Cache stores non json', async function() {
+      
+
+
+    // });
 
   });
 });
