@@ -8,6 +8,24 @@ let DefaultStore = require('./store');
 module.exports = function Cache(httpHeaders, store, config) {
   httpHeaders = httpHeaders ? httpHeaders : [];
   store = store ? store : new DefaultStore(config);
+  let msg = '';
+
+  if (!store.get) {
+    msg = 'store is missing a "get" property';
+
+  } else if (typeof store.get !== 'function') {
+    msg = '"get" property on store is not a function';
+
+  } else if (!store.set) {
+    msg = 'store missing "set" property';
+
+  } else if (typeof store.set !== 'function') {
+    msg = '"set" property on store is not a function';
+  }
+
+  if (msg) {
+    throw new Error(msg);
+  }
 
   function createHeaderString(httpHeaders) {
     return httpHeaders.reduce((strAcc, header) => {
@@ -24,7 +42,6 @@ module.exports = function Cache(httpHeaders, store, config) {
       } else {
         return JSON.stringify(value);
       }
-      
     }
   }
 
@@ -35,7 +52,7 @@ module.exports = function Cache(httpHeaders, store, config) {
 
     let url = ctx.url;
     let headerString = createHeaderString(httpHeaders);
-    
+
     try {
       let value = await store.get(url + '|' + headerString)
 
