@@ -34,7 +34,7 @@ module.exports = function Cache(httpHeaders, store, config) {
   }
 
   function handlePossibleJson(value, shouldParse, ctx) {
-    if (ctx.is('json', 'application/json') === null) {
+    if (ctx.is('json', 'application/json') === false) {
       return value;
     } else {
       if (shouldParse) {
@@ -47,7 +47,7 @@ module.exports = function Cache(httpHeaders, store, config) {
 
   return async function(ctx, next) {
     if (ctx.method !== 'GET') {
-      next();
+      return next();
     }
 
     let url = ctx.url;

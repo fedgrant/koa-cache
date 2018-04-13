@@ -1,20 +1,9 @@
-const cache = require('./index.js');
+const Cache = require('./index.js');
 const app = new (require('koa'))();
 const assert = require('assert');
 const sinon = require('sinon');
 
 describe('Testing Caching Middleware', function() {
-  class Store {
-    constructor() {
-      this.store = {}
-    }
-    get(key) {
-      this.store[key];
-    }
-    set(key, value) {
-      this.store[key] = value;
-    }
-  };
   
   describe('Cache throws issues if the store is missing needed functions', function() {
     it('passed store is missing "get"', function() {
@@ -59,6 +48,58 @@ describe('Testing Caching Middleware', function() {
         return cache(httpHeaders, store);
       }, /^Error: \"set\" property on store is not a function$/);
     });
-  })
+  });
 
+  class Store {
+    constructor() {
+      this.store = {}
+    }
+    get(key) {
+      return this.store[key] ? this.store[key] : null;
+    }
+    set(key, value) {
+      this.store[key] = value
+      return true;
+    }
+  };
+
+  describe('Cache properly stores and retrives values', function() {
+  
+    it('Cache ignores non GET request ', async function() {
+      let ctx = {
+        url: '/',
+        method: 'POST'
+      }
+
+      var cache = new Cache([], new Store())
+
+      await cache(ctx, async () => {});
+      assert.equal(undefined, ctx.fromCache);
+    });
+
+    it('Cache retrieves value from store', async function() {
+      let ctx = {
+        url: '/',
+        method: 'GET',
+        is: function(...args) {
+          for (var i in args) {
+            if (ctx.contentType === args[i]) {
+              return true;
+            }
+          }
+          return false;
+        },
+        contentType: 'value'
+      };
+
+      let store = new Store();
+      store.set('/|', 'test');
+
+      var cache = new Cache([], store);    
+      await cache(ctx, async () => {})
+      assert.equal('FETECHED', ctx.fromCache);
+      assert.equal('test', ctx.body);
+    });
+
+  });
 });
