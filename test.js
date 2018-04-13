@@ -71,7 +71,7 @@ describe('Testing Caching Middleware', function() {
         url: '/',
         method: 'GET',
         is: function(...args) {
-          for (var i in args) {
+          for (let i in args) {
             if (ctx.contentType === args[i]) {
               return true;
             }
@@ -87,7 +87,7 @@ describe('Testing Caching Middleware', function() {
         url: '/',
         method: 'POST'
       }
-      var cache = new Cache([], new Store())
+      let cache = new Cache([], new Store())
       await cache(ctx, async () => {});
       assert.equal(undefined, ctx.fromCache);
     });
@@ -96,7 +96,7 @@ describe('Testing Caching Middleware', function() {
       let store = new Store();
       store.set('/|', 'test');
 
-      var cache = new Cache([], store);    
+      let cache = new Cache([], store);    
       await cache(ctx, async () => {})
       assert.equal('FETECHED', ctx.fromCache);
       assert.equal('test', ctx.body);
@@ -106,7 +106,7 @@ describe('Testing Caching Middleware', function() {
       let store = new Store();
       store.set('/|', {test: 'test'});
 
-      var cache = new Cache([], store);    
+      let cache = new Cache([], store);    
       await cache(ctx, async () => {})
       assert.equal('FETECHED', ctx.fromCache);
       assert.deepEqual({test:'test'}, ctx.body);
