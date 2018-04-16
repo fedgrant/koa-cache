@@ -72,7 +72,7 @@ describe('Testing Caching Middleware', function() {
         method: 'GET',
         is: function(...args) {
           for (let i in args) {
-            if (ctx.contentType === args[i]) {
+            if (ctx.type === args[i]) {
               return true;
             }
           }
@@ -92,7 +92,7 @@ describe('Testing Caching Middleware', function() {
       assert.equal(undefined, ctx.fromCache);
     });
 
-    it('Cache retrieves non json value from store', async function() {
+    it('Cache retrieves string value from store', async function() {
       let store = new Store();
       store.set('/|', 'test');
 
@@ -112,11 +112,27 @@ describe('Testing Caching Middleware', function() {
       assert.deepEqual({test:'test'}, ctx.body);
     });
 
-    // it('Cache stores non json', async function() {
-      
+    it('Cache doesnt have value, waits for returned body and stores the string value', async function() {
+      let store = new Store();
+      let cache = new Cache([], store);
+      await cache(ctx, async () => {
+        ctx.body = 'hello test';
+      });
+      assert.equal('CREATED', ctx.fromCache);
+      assert.equal('hello test', ctx.body);
+    });
 
+    it('Cache doesnt have value, waits for returned body and stores the json value', async function() {
+      let store = new Store();
+      let cache = new Cache([], store);
+      await cache(ctx, async () => {
+        ctx.body = {test:'hello test'};
+        ctx.type = 'json'
 
-    // });
+      });
+      assert.equal('CREATED', ctx.fromCache);
+      assert.deepEqual({test:'hello test'}, ctx.body);
+    });
 
   });
 });
